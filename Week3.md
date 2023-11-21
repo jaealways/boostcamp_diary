@@ -375,7 +375,8 @@
 ## 1*1 convolution [21:39]
     - 채널 차원 감소를 위함 → #parameter 감소 & #layer 증가
     - ex. Resnet, Densenet
-    - bottleneck 아키텍처(?)
+    - bottleneck 아키텍처
+        - 앞뒤로 1by1 넣으면 파라미터 줄일 수 있다...
     - cnn에서 bias 고려하면 어디항에 +1?
         - 각 필터에 대한 파라미터 수는 (3*3*64=576), (576+1)*32
 
@@ -443,7 +444,7 @@
 
 - 사람이 error rate 5.1%인데, 15년에 이미 초월함
 
-### VCGNet [08:47~]
+### VGGNet [08:47~]
 - 3x3만을 활용함 왜??
     - 컨볼루션의 사이즈가 커지면 같는 장점: 한 번 찍었을 때 고려되는 인풋의 크기가 커짐 (Receptive Field)
 - 3x3 두 층이 5x5 하나보다 파라미터 더 줄일 수 있음
@@ -454,14 +455,26 @@
 - Inception block의 정확한 의미?: 1 by 1 컨볼루션 덕분에 파라미터 줄이는 효과
 
 
-### Inception Blcok [14:20~]
+### Inception Block [14:20~]
 
-### 갑분퀴즈 - 어떤 CNN 아키텍처가 가장 적은 수의 파라미터를 갖고 있나요?
-답 - 구글넷 [18:38~]
+### 갑분퀴즈 - 어떤 CNN 아키텍처가 가장 적은 수의 파라미터를 갖고 있나요? [18:38~]
+답 - 구글넷 
 
 ### ResNet [19:40~]
+- 파라미터 숫자가 많으면 오버피팅 일어날 수 있음 (트레이닝 에러는 주는데 테스트 에러는 오히려 커짐)
+- 컨볼루션 레이어가 학습하고자 하는 것은 차이만(?)
+- ResNet 구조를 사용하면, 훨씬 깊게 쌓아도 학습을 시킬 수 있다!
+- prokected shortcut: 1by1 conv 사용해서 차원 맞춘 후 덧셈 연산 가능하도록 해줌
+- batch norm을 relu 뒤어 넣는 것이 더 잘됨? 오히려 안 넣는게 더 잘됨? 약간의 논란 있음
+- bottleneck 아키텍처: 1by1 채널을 앞뒤로 넣어주어서 원하는 차원 맞출 수 있음 (조금 더 직관적으로 이해하고 싶음)
+
 
 ### DenseNet [25:15~]
+
+- 컨볼루션을 통해 나온 값을 더하지말고, concat하자!
+- 채널이 기하급수적으로 커짐! 파라미터도 기하급수적으로 커짐!
+- 중간에 채널을 한 번씩 1 by 1 conv로 줄임
+- DenseNet이 SOTA 차지하는 경우 많음
 
 ### Summary - 최종정리
 
@@ -476,35 +489,63 @@ DenseNet : concatenation (연쇄)
 
 # 3.6 Computer Vision Applications
 
-### 1. 강의 소개
+## semantic Segmentation [00:50~]
+- 이미지의 각 픽셀을 라벨마다 분류함
+- 자율주행 등 개별 사물을 인식하는데 활용
 
-이 강의에서는 Computer Vision Applications인 Semantic Segmentation과 Object Detection에 대해 알아봅니다. 해당 강의를 통해 Fully Convolutional Network와 Deconvolution의 개념을 공부하고 R-CNN, Fast R-CNN과 YOLO와 같은 대표적인 Detection 방법론에 대해서 이해할 수 있습니다.
+### Fully Convolutional Network [03:05~]
+- CNN은 conv, pooling, dense 등을 통과하다가 마지막에 fully-connect layer를 통과해서 결과 내는 방식이었음
+- Fully Convolutional Network는 dense layer를 없애자는 것! (convolutionalization)
+- 쭉 펴서 계산하자는 의미로 받아들일 수 있음
+- 파라미터 숫자도 같은데 왜 semantic segmentation에서 convolutionalization를 할까?
+- convolution이 갖는 shared parameter 성질 덕분에, 동일한 convolution 필터가 동일하게 찍기 때문에 resulting space 차원이 유동적으로 커졌다 줄었다 할 수 있음
+- 즉 차원이 무수히 커져도 무사히 CNN을 동작시킬 수 있음 + 히트맵처럼 정도를 표기할 수 있음
+- 아웃풋을 원래의 dense pixel로 늘리는 역할 필요. unpooling 등 다양한 기법 사용
 
-### 2. 강의 키워드
+### Deconvolution(conv transpose) [09:55~]
+- convolution의 역연산(으로 생각하면 좋음)
+- 엄밀하게 convolution을 복원하는건 불가능
+    - 2+8, 3+7 모두 10, 10에서 역으로 가면 여러 경우의 수 나옴
+- 그림을 통한 Deconvolution의 이해
 
-- Semantic Segmentation, Object Detection
+### results [12:10~]
+- 인풋이미지에서 fully convolution network에서 (??) 
 
-Semantic Segmentation (의미적 분할)
+## Detection (탐지 - 분류) [12:50~]
+- 물체를 분류하는데, bounding box로 하는 것
+    - 이미지에서 2000개의 region을 뽑음
+    - region의 크기를 똑같이 맞춘다음, feature를 CNN으로 추출
+    - linear SVM으로 출력
+ 
+### R-CNN [14:10~]
+- 이미지 안에 어떤 물체가 있는지 구할 수 있음
 
-Fully Convolutional Network
+### SPPNet [14:45~]
+- R-CNN의 가장 큰 문제는 2000개의 region을 뽑으면, 2000개의 이미지를 모두 통과시켜야 함
+- SPPNet은 이미지에서 바운딩 박스 뽑고, 이미지 전체에서 convolution feature map 만든 다음, 뽑힌 바운딩 박스 위치에 해당하는 텐서만 가져오자!
+- R-CNN에 비해 속도가 빨라짐
+- spatial pyramid pooling: 가져온 feature map을 어떻게든 하나의 벡터로 바꿔줌
 
-Deconvolution(conv transpose)
+### Fast R-CNN [16:20~]
+- 기본 컨셉은 SPPNet과 동일. 뒷단에 뉴럴넷을 통해 bounding-box regression과 classification을 하는 점에서 차이
 
-results
+### Faster R-CNN [17:40~]
+- 이미지에서 바운딩 박스를 뽑아내는 region proposal도 학습을 통해 하자!
+- Fast R-CNN + Region Proposal Network
 
-Detection (탐지 - 분류)
+### Region Proposal Network [18:30~]
+- 이미지에서 특정 영역에 물체가 있을지 없을지 찾아주는 역할 수행
+- 물체가 무엇인지는 뒷단의 네트워크가 판단
+- Anchor Box: 물체의 크기에 맞는 탬플릿을 미리 예측해 놓음!
+- Fully Conv Net이 해당 영역에 물체 있을지 없을지 정보 갖게 됨
+- 필요한 파라미터 갯수: (서로 다른 region size x 서로 다른 region 비율) x (바운딩 박스의 변형에 대한 파라미터 + 박스가 필요한지)
 
-R-CNN
+### YOLO [21:40~]
+- 이미지 한 장에서 바로 아웃풋이 나올 수 있기 때문에, Faster R-CNN 보다도 훨씬 빠름
+    - 이미지를 S by S 그리드로 나눔
+    - 그리드 중간에 찾고자 하는 물체가 들어가면, 바운딩 박스와 해당 물체 동시에 예측해줌
 
-SPPNet
-
-Fast R-CNN
-
-Faster R-CNN
-
-Region Proposal Network
-
-YOLO
+- 최근의 Detection 모델들은 바운딩 박스 사이즈를 미리 정해놓고, 얼마나 변형시켜야 할지의 문제로 바꿈
 
 
 # 기본 과제 3 CNN Assignment
@@ -525,10 +566,12 @@ YOLO
 
 ## Sequential Model [01:10]
 
+- 시퀀셜 데이터를 처리할 때 가장 어려운 것은 길이가 언제 끝날지 모름. 차원을 예측할 수 없기 때문에 fully connected layer 사용 못함
 - 다음번 입력에 대한 예측을 하는 것을 예로 들 수 있음
 - 고려해야 할 contditioning vector 숫자가 점점 늘어남
 - Fix the past timespan(과거의 몇개만 보기)
 - Markov model - 나의 현재는 바로 전 과거에만 dependent함
+    - joint distribution 표현하는건 쉬워지지만, 많은 정보를 버리게 됨
 - Latent autoregressive model
     - hidden state가 과거의 정보를 요약해서 가짐
     - 현재 입력이 이 hidden state에만 dependent
@@ -536,10 +579,13 @@ YOLO
 ## Recurrent Neural network [07:00]
 
 - RNN - 시간 순으로 푼다고 이야기를 많이 함
+- 멀리 있는 정보가 살아남기 힘듦
 - Short-term dependencies
 - Long-term dependencies
+    - RNN이 포착하기 힘듦
 - Vanishing / exploding gradient 문제
-- Long Short Term Memory(LSTM)
+    - sigmoid 사용하면 vanishing, ReLU 사용하면 exploding 됨
+- Long Short Term Memory(LSTM)의 등장
 
 ## Long Short Term Memory(LSTM) [13:20]
 
@@ -547,10 +593,10 @@ YOLO
     - Input
     - Output(hidden state)
     - Previous cell state
-    - Previous hiden state
+    - Previous hidden state
     - Next cell state
     - Next hidden state
-- gate 위주로 이해하기
+- gate 위주로 이해하기 (컨베이어 밸트에서 어떤거 버릴지 정하기)
     - Forget gate - 어떤 정보를 버릴지 결정
     - Input gate - 어떤 정보를 cell state에 저장할 지 결정
     - Update cell - 위 정보를 통해 cell state 업데이트
@@ -558,8 +604,28 @@ YOLO
 
 ## Gated Recurrent Unit(GRU) [22:40]
 
-- reset gate, update gate 두 개로만 심플하게 구성
+- reset gate(forget gate랑 비슷), update gate 두 개로만 심플하게 구성
 - No cell state, just hidden state
     - hidden state가 곧 output이고 바로 다음번 gate로 들어감
-- LSTM과 비슷한 역할
+- LSTM과 비슷한 역할이지만 보통 성능 더 좋음
 - 요즘에는 LSTM, GRU 다 잘 안씀(Transformer가 나오면서 거기로 넘어감)
+
+
+# 3.7-실습 Recurrent Neural Networks 실습
+
+## Classification With LSTM [00:00]
+
+- Dataset and Loader - sequential data가 필요 [02:25]
+    - MLIST dataset 이용
+    - 최종적으로, batch 마다 one-hot vector가 튀어나와서 argmax를 통해 확률로 얻어짐
+- Define Model [02:30]
+- Check How LSTM Works [05:30]
+- Check parameters [08:10]
+    - 파라미터가 생각보다 많음(여기 82만 개)
+    - 각각의 gate function이 모두 dense layer임
+    - 파라미터를 줄이기 위해 hidden dimension을 줄여야 함
+- simple Forward Path [09:15]
+- Evaluation Function [09:25]
+- Initial Evaluation [10:00]
+- Train [10:10]
+- Test [12:30]

@@ -1,4 +1,4 @@
-## git_commit 효과적인 단위테스트
+## 효과적인 단위테스트
 - Unit Testing 단위테스트: 생산성과 품질을 위한 단위 테스트 원칙과 패턴
 
 ### 단위 테스트의 목표
@@ -118,20 +118,11 @@
 - HNSW: Hierarchical Navigable Small Worlds
     - 얼마나 layer 층 타고 들어가고, 얼마나 가까워야 정답으로 찍을 것인가?
 
+## Graph Neural Network
+- 그래프를 인접행렬로 표현 -> 추천 시스템, 화학 분자구조 등의 application
+- GNN -> graph data -> graph update layer -> Neural Network -> outputs
 
 
-
-
-
-
-
-
-##  GNN 기초
-
-
-##  Data 그리고 Machine Learning
-
-
-##  주니어 개발자의 서버 로그 관리 개선기
+### 그래프 거리 계산 방식
 
 
